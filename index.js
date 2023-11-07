@@ -28,6 +28,7 @@ async function run() {
         // await client.connect();
         const blogsCollection = client.db('blogsList').collection('blogs');
         const wishListCollection = client.db('wishList').collection('wishes');
+        const commentCollection = client.db('commentList').collection('comments');
 
         app.post('/api/v1/blogs', async (req, res) => {
             const newBlog = req.body;
@@ -70,6 +71,39 @@ async function run() {
             const result = await wishListCollection.insertOne(add);
             res.send(result);
         })
+
+        app.get('/api/v1/wishList', async(req, res) => {
+            const result = await wishListCollection.find().toArray();
+            res.send(result)
+        })
+
+        app.delete('/api/v1/wishList/:id', async(req, res) => {
+            const id = req.params.id;
+            const query = {_id: new ObjectId(id)};
+            const result = await wishListCollection.deleteOne(query);
+            res.send(result);
+        })
+
+        
+        app.post('/api/v1/comment', async (req, res) => {
+            const add = req.body;
+            const result = await commentCollection.insertOne(add);
+            res.send(result);
+        })
+
+        
+        app.get('/api/v1/comment', async(req, res) => {
+            const result = await commentCollection.find().toArray();
+            res.send(result)
+        })
+
+        // app.get('/api/v1/wishList/:id', async (req, res) => {
+        //     const id = req.params.id;
+        //     const query = { _id: new ObjectId(id) }
+        //     const result = await wishListCollection.findOne(query);
+        //     res.send(result);
+        // })
+
 
 
         // Send a ping to confirm a successful connection
