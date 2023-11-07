@@ -46,6 +46,24 @@ async function run() {
             res.send(result);
         })
 
+        app.put('/api/v1/blogs/:id', async (req, res) => {
+            const id = req.params.id;
+            const filter = {_id: new ObjectId(id)};
+            const options = {upsert: true};
+            const updateBlog = req.body;
+            const blog = {
+                $set: {
+                    title: updateBlog.title,
+                    img: updateBlog.img,
+                    category: updateBlog.category,
+                    shortDescription: updateBlog.shortDescription,
+                    longDescription: updateBlog.longDescription
+                }
+            };
+            const result = await blogsCollection.updateOne(filter, blog, options);
+            res.send(result);
+        })
+
 
         // Send a ping to confirm a successful connection
         await client.db("admin").command({ ping: 1 });
