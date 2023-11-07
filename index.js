@@ -27,6 +27,7 @@ async function run() {
         // Connect the client to the server	(optional starting in v4.7)
         // await client.connect();
         const blogsCollection = client.db('blogsList').collection('blogs');
+        const wishListCollection = client.db('wishList').collection('wishes');
 
         app.post('/api/v1/blogs', async (req, res) => {
             const newBlog = req.body;
@@ -61,6 +62,12 @@ async function run() {
                 }
             };
             const result = await blogsCollection.updateOne(filter, blog, options);
+            res.send(result);
+        })
+
+        app.post('/api/v1/wishList', async (req, res) => {
+            const add = req.body;
+            const result = await wishListCollection.insertOne(add);
             res.send(result);
         })
 
