@@ -1,4 +1,6 @@
 const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
+let jwt = require('jsonwebtoken');
+var cookieParser = require('cookie-parser')
 require("dotenv").config();
 const express = require('express');
 const cors = require('cors');
@@ -30,6 +32,29 @@ async function run() {
         const wishListCollection = client.db('wishList').collection('wishes');
         const commentCollection = client.db('commentList').collection('comments');
 
+        const gateman = (req, res, next) => {
+            const { token } = req.cookies
+
+            if (!token) {
+                return res.status(401).send({ message: 'you are not authorized' })
+            }
+
+            // verify a token symmetric
+            jwt.verify(token, secret, function (err, decoded) {
+                if (err) {
+                    return res.status(401).send({ message: 'you are not authorized' })
+                }
+                console.log(decoded) // bar
+                req.user = decoded
+                next();
+            });
+
+        }
+
+
+
+
+
         app.post('/api/v1/blogs', async (req, res) => {
             const newBlog = req.body;
             const result = await blogsCollection.insertOne(newBlog);
@@ -50,8 +75,8 @@ async function run() {
 
         app.put('/api/v1/blogs/:id', async (req, res) => {
             const id = req.params.id;
-            const filter = {_id: new ObjectId(id)};
-            const options = {upsert: true};
+            const filter = { _id: new ObjectId(id) };
+            const options = { upsert: true };
             const updateBlog = req.body;
             const blog = {
                 $set: {
@@ -72,31 +97,57 @@ async function run() {
             res.send(result);
         })
 
-        app.get('/api/v1/wishList', async(req, res) => {
+        app.get('/api/v1/wishList', async (req, res) => {
             const result = await wishListCollection.find().toArray();
             res.send(result)
         })
 
-        app.delete('/api/v1/wishList/:id', async(req, res) => {
+        app.delete('/api/v1/wishList/:id', async (req, res) => {
             const id = req.params.id;
-            const query = {_id: new ObjectId(id)};
+            const query = { _id: new ObjectId(id) };
             const result = await wishListCollection.deleteOne(query);
             res.send(result);
         })
 
-        
+
         app.post('/api/v1/comment', async (req, res) => {
             const add = req.body;
             const result = await commentCollection.insertOne(add);
             res.send(result);
         })
 
-        
-        app.get('/api/v1/comment', async(req, res) => {
+
+        app.get('/api/v1/comment', async (req, res) => {
             const result = await commentCollection.find().toArray();
             res.send(result)
         })
 
+        app.get('/api/v1/feature', async (req, res) => {
+            const result = await blogsCollection.find({
+                "longDescription": { $exists: true },
+                $expr: { $gt: [{ $strLenCP: "$longDescription" }, 10] }
+            }).sort({ length: -1 }).limit(-10).toArray()
+            res.send(result)
+        })
+
+        // app.get('/api/v1/feature', async (req, res) => {
+        //   const result = await blogsCollection.aggregate([
+        //     {
+        //         $project: {
+        //             "longDescription": 1,
+        //             "field_length": {
+        //                 $strLenCP : "$longDescription"
+        //             }
+        //         }
+        //     },
+        //     {
+        //         "$sort": {
+        //             "field_length": -1
+        //         }
+        //     }
+        //   ]);
+        //   res.send(result)
+        // })
         // app.get('/api/v1/wishList/:id', async (req, res) => {
         //     const id = req.params.id;
         //     const query = { _id: new ObjectId(id) }
