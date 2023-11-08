@@ -7,7 +7,6 @@ const cors = require('cors');
 const app = express();
 const port = process.env.PORT || 5000;
 
-// const secret = 'veryverysecretmaletakawkedewajabenadthadfhhedrfhdtyuh'
 
 app.use(cors({
     origin: [
@@ -60,25 +59,6 @@ async function run() {
         const blogsCollection = client.db('blogsList').collection('blogs');
         const wishListCollection = client.db('wishList').collection('wishes');
         const commentCollection = client.db('commentList').collection('comments');
-
-        // const gateman = (req, res, next) => {
-        //     const { token } = req.cookies
-
-        //     if (!token) {
-        //         return res.status(401).send({ message: 'you are not authorized' })
-        //     }
-
-        //     // verify a token symmetric
-        //     jwt.verify(token, secret, function (err, decoded) {
-        //         if (err) {
-        //             return res.status(401).send({ message: 'you are not authorized' })
-        //         }
-        //         // console.log(decoded) // bar
-        //         req.user = decoded
-        //         next();
-        //     });
-
-        // }
 
 
 
@@ -173,17 +153,6 @@ async function run() {
             const token = jwt.sign(user, process.env.ACCESS_TOKEN, { expiresIn: 60 * 60 })
 
 
-            // res.cookie(
-            //     "token",
-            //     tokenValue,
-            //     {
-            //     httpOnly: true,
-            //     secure: process.env.NODE_ENV,
-            //     sameSite: process.env.NODE_VNE,
-            //     }
-            //     )
-
-
             res.cookie('token', token, {
                 httpOnly: true,
                 secure: process.env.NODE_ENV,
@@ -197,31 +166,6 @@ async function run() {
             console.log('logout', user);
             res.clearCookie('token', { maxAge: 0, secure: process.env.NODE_ENV, sameSite: process.env.NODE_VNE }).send({ success: true })
         })
-
-        // app.get('/api/v1/feature', async (req, res) => {
-        //   const result = await blogsCollection.aggregate([
-        //     {
-        //         $project: {
-        //             "longDescription": 1,
-        //             "field_length": {
-        //                 $strLenCP : "$longDescription"
-        //             }
-        //         }
-        //     },
-        //     {
-        //         "$sort": {
-        //             "field_length": -1
-        //         }
-        //     }
-        //   ]);
-        //   res.send(result)
-        // })
-        // app.get('/api/v1/wishList/:id', async (req, res) => {
-        //     const id = req.params.id;
-        //     const query = { _id: new ObjectId(id) }
-        //     const result = await wishListCollection.findOne(query);
-        //     res.send(result);
-        // })
 
 
 
