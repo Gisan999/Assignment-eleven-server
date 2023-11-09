@@ -14,7 +14,7 @@ const port = process.env.PORT || 5000
 
 app.use(
     cors({
-        origin: ['http://localhost:5173', 'https://assignment-eleven-b0b1b.web.app'],
+        origin: ['https://assignment-eleven-b0b1b.web.app'],
         credentials: true,
     }),
 )
